@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Pad</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px 20px;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #999;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .display {
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .display-value {
+            font-size: 32px;
+            color: #333;
+            letter-spacing: 8px;
+            font-weight: bold;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .key {
+            aspect-ratio: 1;
+            border: none;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: 600;
+            background: #f0f0f0;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .key:active {
+            background: #e0e0e0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            transform: scale(0.97);
+        }
+
+        .key:hover {
+            background: #e8e8e8;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-clear, .btn-delete {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .btn-clear {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-clear:active {
+            background: #ff5252;
+            transform: scale(0.98);
+        }
+
+        .btn-delete {
+            background: #ffa500;
+            color: white;
+        }
+
+        .btn-delete:active {
+            background: #ff8c00;
+            transform: scale(0.98);
+        }
+
+        .audio-control {
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .audio-control label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .audio-control input {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .status-message {
+            text-align: center;
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-bottom: 10px;
+            min-height: 20px;
+        }
+
+        .status-message.success {
+            color: #51cf66;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 15px;
+                border-radius: 16px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .display-value {
+                font-size: 28px;
+            }
+
+            .key {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            body {
+                min-height: auto;
+                padding: 10px;
+            }
+
+            .container {
+                padding: 20px 15px;
+            }
+
+            h1 {
+                font-size: 20px;
+                margin-bottom: 5px;
+            }
+
+            .subtitle {
+                margin-bottom: 10px;
+            }
+
+            .display {
+                margin-bottom: 20px;
+            }
+
+            .keypad {
+                gap: 8px;
+            }
+
+            .key {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Code Pad</h1>
+            <p class="subtitle">Enter the access code</p>
+        </div>
+
+        <div class="audio-control">
+            <label for="audioSource">Beep Sound:</label>
+            <input type="file" id="audioSource" accept="audio/*">
+        </div>
+
+        <div class="status-message" id="statusMessage"></div>
+
+        <div class="display">
+            <div class="display-value" id="displayValue">•••</div>
+        </div>
+
+        <div class="keypad">
+            <button class="key" data-key="1">1</button>
+            <button class="key" data-key="2">2</button>
+            <button class="key" data-key="3">3</button>
+            <button class="key" data-key="4">4</button>
+            <button class="key" data-key="5">5</button>
+            <button class="key" data-key="6">6</button>
+            <button class="key" data-key="7">7</button>
+            <button class="key" data-key="8">8</button>
+            <button class="key" data-key="9">9</button>
+            <button class="key" data-key="*" style="color: #999;">*</button>
+            <button class="key" data-key="0">0</button>
+            <button class="key" data-key="#" style="color: #999;">#</button>
+        </div>
+
+        <div class="controls">
+            <button class="btn-clear" id="btnClear">Clear</button>
+            <button class="btn-delete" id="btnDelete">Delete</button>
+        </div>
+    </div>
+
+    <script>
+        const CORRECT_CODE = '3354';
+        let enteredCode = '';
+        let audioFile = null;
+        let audioContext = null;
+
+        const displayValue = document.getElementById('displayValue');
+        const statusMessage = document.getElementById('statusMessage');
+        const audioInput = document.getElementById('audioSource');
+        const btnClear = document.getElementById('btnClear');
+        const btnDelete = document.getElementById('btnDelete');
+        const keyButtons = document.querySelectorAll('.key');
+
+        // Update display
+        function updateDisplay() {
+            if (enteredCode.length === 0) {
+                displayValue.textContent = '•••';
+            } else {
+                displayValue.textContent = '•'.repeat(enteredCode.length);
+            }
+        }
+
+        // Play beep sound
+        async function playBeep() {
+            if (audioFile) {
+                try {
+                    const audio = new Audio(audioFile);
+                    audio.volume = 0.5;
+                    await audio.play();
+                } catch (error) {
+                    console.log('Audio playback failed:', error);
+                }
+            } else {
+                // Fallback: simple web audio beep
+                playDefaultBeep();
+            }
+        }
+
+        // Default beep using Web Audio API
+        function playDefaultBeep() {
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                
+                const now = audioContext.currentTime;
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                osc.frequency.value = 800;
+                osc.type = 'sine';
+                
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } catch (error) {
+                console.log('Beep playback failed:', error);
+            }
+        }
+
+        // Handle key press
+        function handleKeyPress(key) {
+            if (key === '*' || key === '#') {
+                return; // Ignore * and #
+            }
+
+            enteredCode += key;
+            updateDisplay();
+            playBeep();
+
+            if (enteredCode.length === CORRECT_CODE.length) {
+                checkCode();
+            }
+        }
+
+        // Check if code is correct
+        function checkCode() {
+            if (enteredCode === CORRECT_CODE) {
+                statusMessage.textContent = 'Access Granted!';
+                statusMessage.classList.add('success');
+                setTimeout(() => {
+                    window.location.href = 'calendar.html';
+                }, 500);
+            } else {
+                statusMessage.textContent = 'Incorrect Code. Try again.';
+                statusMessage.classList.remove('success');
+                enteredCode = '';
+                updateDisplay();
+                setTimeout(() => {
+                    statusMessage.textContent = '';
+                }, 2000);
+            }
+        }
+
+        // Clear code
+        function clearCode() {
+            enteredCode = '';
+            statusMessage.textContent = '';
+            statusMessage.classList.remove('success');
+            updateDisplay();
+        }
+
+        // Delete last digit
+        function deleteLastDigit() {
+            enteredCode = enteredCode.slice(0, -1);
+            statusMessage.textContent = '';
+            statusMessage.classList.remove('success');
+            updateDisplay();
+        }
+
+        // Handle audio file upload
+        audioInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                audioFile = URL.createObjectURL(file);
+                console.log('Audio file loaded');
+            }
+        });
+
+        // Add event listeners to keypad buttons
+        keyButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const key = e.target.getAttribute('data-key');
+                handleKeyPress(key);
+            });
+        });
+
+        // Clear and Delete buttons
+        btnClear.addEventListener('click', clearCode);
+        btnDelete.addEventListener('click', deleteLastDigit);
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (/^[0-9]$/.test(e.key)) {
+                handleKeyPress(e.key);
+            } else if (e.key === 'Backspace') {
+                deleteLastDigit();
+            } else if (e.key === 'Escape' || e.key === 'c') {
+                clearCode();
+            }
+        });
+
+        // Initialize display
+        updateDisplay();
+    </script>
+</body>
+</html>
