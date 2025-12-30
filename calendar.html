@@ -923,7 +923,7 @@
         // Render week view
         function renderWeekView() {
             const weekStart = getWeekStart(currentDate);
-            weekView.innerHTML = '';
+            weekDaysContainer.innerHTML = '';
 
             for (let i = 0; i < 7; i++) {
                 const date = new Date(weekStart);
@@ -962,7 +962,7 @@
                     openEventModal(date);
                 });
 
-                weekView.appendChild(dayCard);
+                weekDaysContainer.appendChild(dayCard);
             }
         }
 
