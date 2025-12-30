@@ -234,12 +234,14 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 10px;
         }
 
         .month-header h2 {
             font-size: 20px;
             color: #333;
             flex: 1;
+            margin: 0;
         }
 
         .month-nav {
@@ -251,10 +253,12 @@
             background: #f0f0f0;
             border: none;
             border-radius: 8px;
-            padding: 6px 12px;
+            padding: 8px 12px;
             cursor: pointer;
             font-weight: 600;
+            font-size: 16px;
             transition: all 0.15s ease;
+            touch-action: manipulation;
         }
 
         .month-nav button:active {
@@ -561,9 +565,13 @@
         <!-- Month View (Default) -->
         <div class="month-view" id="monthView">
             <div class="month-header">
-                <button class="nav-prev">&larr;</button>
+                <div class="month-nav">
+                    <button class="nav-prev">← Prev</button>
+                </div>
                 <h2 id="monthTitle"></h2>
-                <button class="nav-next">&rarr;</button>
+                <div class="month-nav">
+                    <button class="nav-next">Next →</button>
+                </div>
             </div>
             <div class="weekdays">
                 <div class="weekday-label">Sun</div>
@@ -789,8 +797,6 @@
 
         const weekView = document.getElementById('weekView');
         const monthView = document.getElementById('monthView');
-        const weekToggle = document.getElementById('weekToggle');
-        const monthToggle = document.getElementById('monthToggle');
         const backBtn = document.getElementById('backBtn');
         const monthTitle = document.getElementById('monthTitle');
         const calendarGrid = document.getElementById('calendarGrid');
@@ -1052,18 +1058,22 @@
         btnSave.addEventListener('click', saveEvent);
         btnDeleteEvent.addEventListener('click', deleteEvent);
 
-        navPrev.addEventListener('click', () => {
-            displayMonth.setMonth(displayMonth.getMonth() - 1);
-            renderMonthView();
-        });
+        // Navigation events
+        if (navPrev) {
+            navPrev.addEventListener('click', () => {
+                displayMonth.setMonth(displayMonth.getMonth() - 1);
+                renderMonthView();
+            });
+        }
 
-        navNext.addEventListener('click', () => {
-            displayMonth.setMonth(displayMonth.getMonth() + 1);
-            renderMonthView();
-        });
+        if (navNext) {
+            navNext.addEventListener('click', () => {
+                displayMonth.setMonth(displayMonth.getMonth() + 1);
+                renderMonthView();
+            });
+        }
 
         weekBackBtn.addEventListener('click', switchToMonthView);
-
         backBtn.addEventListener('click', () => {
             window.location.href = 'index.html';
         });
