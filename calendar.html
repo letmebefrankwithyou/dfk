@@ -7,6 +7,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
+    <link rel="preload" as="style" href="about:blank">
     <style>
         * {
             margin: 0;
@@ -69,7 +70,7 @@
         }
 
         .view-toggle {
-            display: flex;
+            display: none;
             gap: 10px;
             margin-bottom: 20px;
         }
@@ -98,11 +99,48 @@
 
         /* Week View Styles */
         .week-view {
+            display: none;
             flex: 1;
             overflow-y: auto;
-            display: flex;
             flex-direction: column;
             gap: 10px;
+        }
+
+        .week-view.active {
+            display: flex;
+        }
+
+        .week-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .week-header h2 {
+            font-size: 18px;
+            color: #333;
+            flex: 1;
+        }
+
+        .week-back-btn {
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .week-back-btn:active {
+            transform: scale(0.98);
+            background: #e0e0e0;
+        }
+
+        .week-back-btn:hover {
+            background: #e8e8e8;
         }
 
         .day-card {
@@ -180,14 +218,14 @@
 
         /* Month View Styles */
         .month-view {
-            display: none;
+            display: flex;
+            flex-direction: column;
             flex: 1;
             overflow-y: auto;
         }
 
-        .month-view.active {
-            display: flex;
-            flex-direction: column;
+        .month-view.hidden {
+            display: none;
         }
 
         .month-header {
@@ -246,13 +284,14 @@
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
+            gap: 8px;
+            flex: 1;
         }
 
         .calendar-day {
             aspect-ratio: 1;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -262,28 +301,31 @@
             transition: all 0.15s ease;
             color: #333;
             background: white;
-            padding: 4px;
+            padding: 6px 4px;
             position: relative;
             overflow: hidden;
         }
 
         .calendar-day-number {
-            font-size: 12px;
+            font-size: 14px;
             width: 100%;
             text-align: center;
+            font-weight: bold;
         }
 
         .calendar-day-events {
             display: flex;
-            gap: 2px;
+            gap: 3px;
             flex-wrap: wrap;
             justify-content: center;
             flex: 1;
+            align-items: center;
+            width: 100%;
         }
 
         .calendar-event-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
         }
 
@@ -516,17 +558,7 @@
             <button class="btn-back" id="backBtn">← Back</button>
         </div>
 
-        <div class="view-toggle">
-            <button class="toggle-btn active" id="weekToggle">Week</button>
-            <button class="toggle-btn" id="monthToggle">Month</button>
-        </div>
-
-        <!-- Week View -->
-        <div class="week-view" id="weekView">
-            <!-- Days will be inserted here -->
-        </div>
-
-        <!-- Month View -->
+        <!-- Month View (Default) -->
         <div class="month-view" id="monthView">
             <div class="month-header">
                 <button class="nav-prev">&larr;</button>
@@ -543,6 +575,15 @@
                 <div class="weekday-label">Sat</div>
             </div>
             <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+
+        <!-- Week View -->
+        <div class="week-view" id="weekView">
+            <div class="week-header">
+                <h2 id="weekTitle"></h2>
+                <button class="week-back-btn" id="weekBackBtn">← Back to Month</button>
+            </div>
+            <div id="weekDaysContainer"></div>
         </div>
     </div>
 
@@ -753,8 +794,11 @@
         const backBtn = document.getElementById('backBtn');
         const monthTitle = document.getElementById('monthTitle');
         const calendarGrid = document.getElementById('calendarGrid');
+        const weekTitle = document.getElementById('weekTitle');
+        const weekDaysContainer = document.getElementById('weekDaysContainer');
         const navPrev = document.querySelector('.nav-prev');
         const navNext = document.querySelector('.nav-next');
+        const weekBackBtn = document.getElementById('weekBackBtn');
         const eventModal = document.getElementById('eventModal');
         const modalClose = document.getElementById('modalClose');
         const btnSave = document.getElementById('btnSave');
@@ -963,6 +1007,7 @@
 
                 dayEl.addEventListener('click', () => {
                     currentDate = new Date(date);
+                    renderWeekView();
                     switchToWeekView();
                 });
 
@@ -982,19 +1027,14 @@
 
         // Switch views
         function switchToWeekView() {
-            weekView.style.display = 'flex';
-            monthView.classList.remove('active');
-            weekToggle.classList.add('active');
-            monthToggle.classList.remove('active');
+            monthView.classList.add('hidden');
+            weekView.classList.add('active');
             renderWeekView();
         }
 
         function switchToMonthView() {
-            weekView.style.display = 'none';
-            monthView.classList.add('active');
-            weekToggle.classList.remove('active');
-            monthToggle.classList.add('active');
-            renderMonthView();
+            monthView.classList.remove('hidden');
+            weekView.classList.remove('active');
         }
 
         // Color picker
@@ -1012,9 +1052,6 @@
         btnSave.addEventListener('click', saveEvent);
         btnDeleteEvent.addEventListener('click', deleteEvent);
 
-        weekToggle.addEventListener('click', switchToWeekView);
-        monthToggle.addEventListener('click', switchToMonthView);
-
         navPrev.addEventListener('click', () => {
             displayMonth.setMonth(displayMonth.getMonth() - 1);
             renderMonthView();
@@ -1024,6 +1061,8 @@
             displayMonth.setMonth(displayMonth.getMonth() + 1);
             renderMonthView();
         });
+
+        weekBackBtn.addEventListener('click', switchToMonthView);
 
         backBtn.addEventListener('click', () => {
             window.location.href = 'index.html';

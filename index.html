@@ -141,24 +141,15 @@
         }
 
         .audio-control {
-            background: #f5f5f5;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            text-align: center;
+            display: none;
         }
 
         .audio-control label {
-            display: block;
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 10px;
-            font-weight: 500;
+            display: none;
         }
 
         .audio-control input {
-            width: 100%;
-            cursor: pointer;
+            display: none;
         }
 
         .status-message {
@@ -232,11 +223,6 @@
             <p class="subtitle">Enter the access code</p>
         </div>
 
-        <div class="audio-control">
-            <label for="audioSource">Beep Sound:</label>
-            <input type="file" id="audioSource" accept="audio/*">
-        </div>
-
         <div class="status-message" id="statusMessage"></div>
 
         <div class="display">
@@ -267,12 +253,10 @@
     <script>
         const CORRECT_CODE = '3354';
         let enteredCode = '';
-        let audioFile = null;
         let audioContext = null;
 
         const displayValue = document.getElementById('displayValue');
         const statusMessage = document.getElementById('statusMessage');
-        const audioInput = document.getElementById('audioSource');
         const btnClear = document.getElementById('btnClear');
         const btnDelete = document.getElementById('btnDelete');
         const keyButtons = document.querySelectorAll('.key');
@@ -286,24 +270,8 @@
             }
         }
 
-        // Play beep sound
-        async function playBeep() {
-            if (audioFile) {
-                try {
-                    const audio = new Audio(audioFile);
-                    audio.volume = 0.5;
-                    await audio.play();
-                } catch (error) {
-                    console.log('Audio playback failed:', error);
-                }
-            } else {
-                // Fallback: simple web audio beep
-                playDefaultBeep();
-            }
-        }
-
-        // Default beep using Web Audio API
-        function playDefaultBeep() {
+        // Play beep sound using Web Audio API
+        function playBeep() {
             try {
                 if (!audioContext) {
                     audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -378,15 +346,6 @@
             statusMessage.classList.remove('success');
             updateDisplay();
         }
-
-        // Handle audio file upload
-        audioInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                audioFile = URL.createObjectURL(file);
-                console.log('Audio file loaded');
-            }
-        });
 
         // Add event listeners to keypad buttons
         keyButtons.forEach(button => {
