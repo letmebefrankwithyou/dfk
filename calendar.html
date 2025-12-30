@@ -670,7 +670,7 @@
                 try {
                     useFirebase = true;
                     console.log('Firebase connected successfully');
-                    loadEventsFromFirebase();
+                    await loadEventsFromFirebase();
                 } catch (error) {
                     console.error('Firebase error:', error);
                     useFirebase = false;
@@ -701,16 +701,17 @@
                         color: eventData.color
                     });
                 });
-                renderMonthView();
+                console.log('Events loaded from Firebase:', Object.keys(events).length, 'dates');
             } catch (error) {
                 console.error('Error loading events:', error);
+                throw error;
             }
         }
 
         // Load events from local storage
         function loadEventsFromLocalStorage() {
             events = JSON.parse(localStorage.getItem('calendarEvents')) || {};
-            renderMonthView();
+            console.log('Events loaded from localStorage:', Object.keys(events).length, 'dates');
         }
 
         // Save event to Firebase or local storage
