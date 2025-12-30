@@ -701,7 +701,6 @@
                         color: eventData.color
                     });
                 });
-                renderWeekView();
                 renderMonthView();
             } catch (error) {
                 console.error('Error loading events:', error);
@@ -711,7 +710,6 @@
         // Load events from local storage
         function loadEventsFromLocalStorage() {
             events = JSON.parse(localStorage.getItem('calendarEvents')) || {};
-            renderWeekView();
             renderMonthView();
         }
 
@@ -906,18 +904,50 @@
             const isUpdate = !!editingEventId;
             await saveEventToStorage(dateKey, eventData, isUpdate);
             
+            // Reload events
+            if (!events[dateKey]) {
+                events[dateKey] = [];
+            }
+            if (isUpdate) {
+                const index = events[dateKey].findIndex(e => e.id === eventData.id);
+                if (index !== -1) {
+                    events[dateKey][index] = eventData;
+                }
+            } else {
+                events[dateKey].push(eventData);
+            }
+            
             closeEventModal();
-            renderWeekView();
-            renderMonthView();
+            
+            // Re-render the current view
+            if (weekView.classList.contains('active')) {
+                renderWeekView();
+            } else {
+                renderMonthView();
+            }
         }
 
         // Delete event
         async function deleteEvent() {
             const dateKey = getDateKey(selectedDate);
             await deleteEventFromStorage(dateKey, editingEventId);
+            
+            // Update local events object
+            if (events[dateKey]) {
+                events[dateKey] = events[dateKey].filter(e => e.id !== editingEventId);
+                if (events[dateKey].length === 0) {
+                    delete events[dateKey];
+                }
+            }
+            
             closeEventModal();
-            renderWeekView();
-            renderMonthView();
+            
+            // Re-render the current view
+            if (weekView.classList.contains('active')) {
+                renderWeekView();
+            } else {
+                renderMonthView();
+            }
         }
 
         // Render week view
