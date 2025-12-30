@@ -1,2 +1,3 @@
-# home.github.io
-Home section of my page. Includes fun webtools and that's it.
+# .io/DFK
+Home section of my DFK page. Includes fun webtools and that's it.
+
