@@ -953,6 +953,12 @@
         // Render week view
         function renderWeekView() {
             const weekStart = getWeekStart(currentDate);
+            const weekEnd = new Date(weekStart);
+            weekEnd.setDate(weekEnd.getDate() + 6);
+            
+            // Set week title
+            weekTitle.textContent = `Week of ${monthNames[weekStart.getMonth()]} ${weekStart.getDate()}, ${weekStart.getFullYear()}`;
+            
             weekDaysContainer.innerHTML = '';
 
             for (let i = 0; i < 7; i++) {
@@ -1116,7 +1122,15 @@
         });
 
         // Initialize
-        initializeFirebase();
+        // Ensure month view is shown by default
+        monthView.classList.remove('hidden');
+        weekView.classList.remove('active');
+        
+        // Initialize and render
+        initializeFirebase().then(() => {
+            // Make absolutely sure month view is visible
+            renderMonthView();
+        });
     </script>
 </body>
 </html>
