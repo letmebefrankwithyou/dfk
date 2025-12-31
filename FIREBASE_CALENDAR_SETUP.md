@@ -1,53 +1,83 @@
 # Firebase Calendar Setup Guide
 
+## Quick Start (Do This First!)
+
+**You don't have a Firestore database yet. Here's what to do:**
+
+1. Go to **https://console.firebase.google.com**
+2. Click on your **"dfkdb-dd7e9"** project
+3. Click **"Firestore Database"** in the left menu (under Build)
+4. Click **"Create database"** button
+5. Select **"Start in test mode"** → Click **Next**
+6. Choose **"us-east1"** (or closest region) → Click **Enable**
+7. Wait 1-2 minutes for setup to complete
+
+**That's it!** Your calendar will now save to the cloud.
+
+---
+
 ## Overview
 Your calendar needs to store instructor, date, time, and location information. Firebase Firestore will handle this automatically.
 
 ---
 
-## Step 1: Access Firebase Console
+## Step 1: Enable Firestore Database
 
-1. Go to **[firebase.google.com](https://firebase.google.com)**
-2. Click **"Go to console"** (top right)
-3. Sign in with your Google account
-4. Select your **"dfkdb-dd7e9"** project
+1. Go to **[firebase.google.com/console](https://console.firebase.google.com)**
+2. Sign in with your Google account
+3. Select your **"dfkdb-dd7e9"** project
+4. In the left sidebar, click **"Build"** → **"Firestore Database"**
+5. If you see "Get started" or "Create database", click it
+6. Choose **"Start in test mode"** (for now - we'll secure it later)
+7. Select a Cloud Firestore location (choose closest to you, like `us-east1`)
+8. Click **"Enable"**
 
----
-
-## Step 2: Check Your Firestore Database
-
-1. In the left sidebar, click **"Build"** → **"Firestore Database"**
-2. You should see your database is already created
-3. If you see a message about "test mode", that's fine for now
+**Wait 1-2 minutes for Firestore to provision.**
 
 ---
 
-## Step 3: Understand the Data Structure
+## Step 2: Set Up Security Rules (IMPORTANT!)
 
-Your calendar app currently saves events like this:
+Once Firestore is enabled:
+
+1. In Firestore Database, click the **"Rules"** tab
+2. Replace the rules with this:
 
 ```
-Collection: "events"
-├── Document ID: (auto-generated)
-│   ├── name: "Meeting" (INSTRUCTOR)
-│   ├── location: "New York" (LOCATION)
-│   ├── time: "14:30" (TIME - 24hr format)
-│   ├── date: "2025-12-29" (DATE - YYYY-MM-DD)
-│   ├── color: "#FF6B6B"
-│   └── createdAt: (timestamp)
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow anyone to read/write events for now (development only)
+    match /events/{eventId} {
+      allow read, write: if true;
+    }
+  }
+}
 ```
+
+3. Click **"Publish"**
+
+⚠️ **Note**: These rules allow anyone to access your data. For production, you should add authentication.
 
 ---
 
-## Step 4: Update Calendar.html
+## Step 3: Verify Your Configuration
 
-Your `calendar.html` already has the correct Firebase setup! It saves:
-- ✅ Event name (INSTRUCTOR)
-- ✅ Location (LOCATION)
-- ✅ Time (TIME)
-- ✅ Date (DATE)
+Your `calendar.html` already has the correct Firebase config:
 
-**No changes needed to the code!**
+```javascript
+const firebaseConfig = {
+    apiKey: "AIzaSyCuj8UOStRvsZPnrUpxyXtFpxbSeSLA2ok",
+    authDomain: "dfkdb-dd7e9.firebaseapp.com",
+    projectId: "dfkdb-dd7e9",
+    storageBucket: "dfkdb-dd7e9.firebasestorage.app",
+    messagingSenderId: "632770320558",
+    appId: "1:632770320558:web:ac9d091d26fc97b1dfb53f",
+    measurementId: "G-6YH8G2V4R7"
+};
+```
+
+✅ **No code changes needed!**
 
 ---
 
