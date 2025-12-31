@@ -36,12 +36,21 @@ Now that users authenticate, we need to secure the database so users can only ac
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Only allow users to read/write their own events
     match /events/{eventId} {
-      allow read, write: if request.auth != null 
-                         && request.auth.uid == resource.data.userId;
+      // Allow all authenticated users to read all events (shared calendar)
+      allow read: if request.auth != null;
+      
+      // Allow authenticated users to create events with their userId
       allow create: if request.auth != null 
                     && request.auth.uid == request.resource.data.userId;
+      
+      // Allow authenticated users to update their own events
+      allow update: if request.auth != null 
+                    && request.auth.uid == resource.data.userId;
+      
+      // Allow authenticated users to delete their own events
+      allow delete: if request.auth != null 
+                    && request.auth.uid == resource.data.userId;
     }
   }
 }
@@ -51,7 +60,7 @@ service cloud.firestore {
 4. Paste it into the Firebase Rules editor
 5. Click **"Publish"**
 
-⚠️ **Important:** Do NOT copy the lines with dashes (---) above and below. Copy only the 12 lines of rules code!
+⚠️ **Important:** Do NOT copy the lines with dashes (---) above and below. Copy only the rules code!
 
 **What this does:**
 - ✅ Users must be signed in to access events

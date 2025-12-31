@@ -900,12 +900,13 @@
         // Load events from Firebase
         async function loadEventsFromFirebase() {
             try {
-                const querySnapshot = await db.collection('events')
-                    .where('userId', '==', currentUserId)
-                    .get();
+                // Load ALL events (shared calendar) - removed userId filter
+                const querySnapshot = await db.collection('events').get();
+                console.log('Total documents received:', querySnapshot.size);
                 events = {};
                 querySnapshot.forEach((doc) => {
                     const eventData = doc.data();
+                    console.log('Event loaded:', doc.id, eventData);
                     if (!events[eventData.date]) {
                         events[eventData.date] = [];
                     }
@@ -918,6 +919,7 @@
                     });
                 });
                 console.log('Events loaded from Firebase:', Object.keys(events).length, 'dates');
+                console.log('All events by date:', events);
             } catch (error) {
                 console.error('Error loading events:', error);
                 throw error;
