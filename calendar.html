@@ -1069,10 +1069,8 @@
 
         // Get event summary for display
         function getEventSummary(event) {
-            const firstLetter = event.name.charAt(0).toUpperCase();
-            const firstThreeLocation = event.location.substring(0, 3).toUpperCase();
             const time = formatTime(event.time);
-            return `${firstLetter} ${firstThreeLocation} ${time}`;
+            return `${event.name}, ${event.location}, ${time}`;
         }
 
         // Open event modal
